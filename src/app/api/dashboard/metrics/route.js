@@ -1,3 +1,7 @@
+export const runtime = "nodejs";
+import { NextResponse } from "next/server";
+import connectDB from "@/lib/db/mongodb";
+import Product from "@/lib/db/models/product";
 export async function GET() {
   try {
     await connectDB();
@@ -18,7 +22,7 @@ export async function GET() {
       views += productViews;
     }
 
-    const customers = orders; // TEMP proxy
+    const customers = orders;
     const conversion = views
       ? Number(((orders / views) * 100).toFixed(2))
       : 0;

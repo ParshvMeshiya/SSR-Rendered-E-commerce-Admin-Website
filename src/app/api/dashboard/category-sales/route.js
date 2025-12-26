@@ -8,11 +8,6 @@ import Product from "@/lib/db/models/product";
 export async function GET() {
   try {
     await connectDB();
-
-    /**
-     * Aggregate total sales per category
-     * sales field = number of units sold
-     */
     const categorySales = await Product.aggregate([
       {
         $match: {

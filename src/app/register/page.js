@@ -67,7 +67,7 @@ export default function RegisterPage() {
           name: validation.data.name,
           email: validation.data.email,
           password: validation.data.password,
-          confirmPassword: validation.data.confirmPassword, // ✅ ADD THIS LINE
+          confirmPassword: validation.data.confirmPassword,
           role: "admin",
           secretKey: validation.data.secretKey,
         }),

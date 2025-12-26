@@ -1,4 +1,3 @@
-// src/lib/db/models/Product.js
 import mongoose from "mongoose";
 
 const ProductSchema = new mongoose.Schema(
@@ -33,12 +32,10 @@ const ProductSchema = new mongoose.Schema(
         message: "Compare price must be greater than selling price",
       },
     },
-
     views: {
       type: Number,
       default: 0,
     },
-
     category: {
       type: String,
       required: [true, "Product category is required"],
