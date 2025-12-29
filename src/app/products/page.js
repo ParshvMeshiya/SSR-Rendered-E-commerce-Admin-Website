@@ -36,6 +36,28 @@ export default function ProductsPage() {
     setShowLogoutModal(false);
     router.replace("/");
   };
+  const handleDelete = async (id) => {
+    if (!confirm("Are you sure you want to delete this product?")) return;
+
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.error || "Delete failed");
+      }
+
+      // Remove from UI AFTER DB delete
+      setProducts((prev) => prev.filter((p) => p._id !== id));
+    } catch (error) {
+      alert("Failed to delete product");
+      console.error(error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -108,7 +130,7 @@ export default function ProductsPage() {
           </a>
 
           <a
-            href="/analytics"
+            href="/orders"
             className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg"
           >
             <svg
@@ -124,7 +146,7 @@ export default function ProductsPage() {
                 d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
               />
             </svg>
-            Analytics
+            Orders
           </a>
 
           <a
@@ -213,7 +235,7 @@ export default function ProductsPage() {
         <h1 className="text-3xl font-bold text-gray-900">Products</h1>
 
         <button
-          onClick={() => window.location.href = '/products/new'}
+          onClick={() => (window.location.href = "/products/new")}
           className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium"
         >
           + Add Product
@@ -282,10 +304,20 @@ export default function ProductsPage() {
                 </td>
 
                 <td className="px-6 py-4 text-right">
-                  <button className="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-4">
+                  <button
+                    onClick={() => router.push(`/products/${product._id}/edit`)}
+                    className="text-indigo-600 hover:text-indigo-800 text-sm font-medium mr-4"
+                  >
                     Edit
                   </button>
-                  <button className="text-red-600 hover:text-red-800 text-sm font-medium">
+
+                  <button
+                    onClick={() => {
+                      if (!confirm("Delete this product?")) return;
+                      handleDelete(product._id);
+                    }}
+                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                  >
                     Delete
                   </button>
                 </td>

@@ -20,15 +20,22 @@ export async function POST(req) {
     await connectDB();
     const body = await req.json();
 
+    if (!body.createdBy) {
+      return NextResponse.json(
+        { success: false, error: "createdBy is required" },
+        { status: 400 }
+      );
+    }
+
     const product = await Product.create({
       ...body,
-      status: "active",
       sales: 0,
       views: 0,
     });
 
     return NextResponse.json({ success: true, data: product });
   } catch (err) {
+    console.error(err);
     return NextResponse.json(
       { success: false, error: err.message },
       { status: 400 }
