@@ -118,10 +118,10 @@ export default function DashboardPage() {
           {/* Orders Card */}
           <div className="bg-white rounded-xl p-6 border border-gray-200">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-gray-600">Orders</h3>
+              <h3 className="text-sm font-medium text-gray-600">Items Sold</h3>
             </div>
             <p className="text-3xl font-bold text-gray-900 mb-2">
-              {metrics ? metrics.orders.toLocaleString() : "—"}
+              {metrics ? metrics.itemsSold : "—"}
             </p>
           </div>
           {/* Customers Card */}
@@ -137,10 +137,10 @@ export default function DashboardPage() {
           {/* Conversion Card */}
           <div className="bg-white rounded-xl p-6 border border-gray-200">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-gray-600">Conversion</h3>
+              <h3 className="text-sm font-medium text-gray-600">Profit</h3>
             </div>
             <p className="text-3xl font-bold text-gray-900 mb-2">
-              {metrics ? `${metrics.conversion}%` : "—"}
+              {metrics ? `${metrics.profit}` : "—"}
             </p>
           </div>
         </div>

@@ -2,38 +2,36 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db/mongodb";
 import Product from "@/lib/db/models/product";
+
 export async function GET() {
   try {
     await connectDB();
 
-    const products = await Product.find({ status: "active" });
+    const products = await Product.find(); // ✅ ALL products
 
     let revenue = 0;
-    let orders = 0;
-    let views = 0;
+    let itemsSold = 0;
+    let totalCost = 0;
 
     for (const p of products) {
       const sales = p.sales || 0;
       const price = p.price || 0;
-      const productViews = p.views || 0;
+      const cost = p.costPrice || 0;
 
       revenue += price * sales;
-      orders += sales;
-      views += productViews;
+      totalCost += cost * sales;
+      itemsSold += sales;
     }
 
-    const customers = orders;
-    const conversion = views
-      ? Number(((orders / views) * 100).toFixed(2))
-      : 0;
+    const profit = revenue - totalCost;
 
     return NextResponse.json({
       success: true,
       data: {
         revenue,
-        orders,
-        customers,
-        conversion,
+        itemsSold,
+        customers: 0, // placeholder (explained later)
+        profit,
       },
     });
   } catch (error) {

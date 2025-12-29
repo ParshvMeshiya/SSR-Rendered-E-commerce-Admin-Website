@@ -1,35 +1,52 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db/mongodb";
-import Order from "@/lib/db/models/order";
+import Product from "@/lib/db/models/product";
+import mongoose from "mongoose";
 
-/* ================= GET ALL ORDERS ================= */
-export async function GET() {
-  try {
-    await connectDB();
-    const orders = await Order.find().sort({ createdAt: -1 });
-    return NextResponse.json({ success: true, data: orders });
-  } catch (error) {
-    console.error("GET ORDERS ERROR:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch orders" },
-      { status: 500 }
-    );
-  }
-}
-
-/* ================= CREATE ORDER (SIMULATED) ================= */
 export async function POST(req) {
   try {
     await connectDB();
-    const body = await req.json();
+    const { productId, quantity } = await req.json();
 
-    const order = await Order.create(body);
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid product id" },
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json({ success: true, data: order });
-  } catch (error) {
-    console.error("CREATE ORDER ERROR:", error);
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return NextResponse.json(
+        { success: false, error: "Product not found" },
+        { status: 404 }
+      );
+    }
+
+    if (quantity > product.stock) {
+      return NextResponse.json(
+        { success: false, error: "Insufficient stock" },
+        { status: 400 }
+      );
+    }
+    product.stock -= quantity;
+    product.sales = quantity;
+
+    await product.save();
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        productId,
+        quantity,
+        revenue: quantity * product.price,
+      },
+    });
+  } catch (err) {
+    console.error("ORDER ERROR:", err);
     return NextResponse.json(
-      { success: false, error: "Failed to create order" },
+      { success: false, error: "Failed to place order" },
       { status: 500 }
     );
   }
