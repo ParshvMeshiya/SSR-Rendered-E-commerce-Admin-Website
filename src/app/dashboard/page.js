@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [chartData, setChartData] = useState([]);
   const [categorySales, setCategorySales] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
@@ -43,6 +44,16 @@ export default function DashboardPage() {
         console.error("Failed to fetch category sales", err);
       }
     };
+    const fetchRecentTransactions = async () => {
+      try {
+        const res = await fetch("/api/dashboard/recent-transactions");
+        const data = await res.json();
+        if (data.success) setRecentOrders(data.data);
+      } catch (err) {
+        console.error("Failed to fetch recent transactions", err);
+      }
+    };
+
     const initializeUser = () => {
       try {
         const parsedUser = JSON.parse(userData);
@@ -67,8 +78,8 @@ export default function DashboardPage() {
       const res = await fetch("/api/dashboard/metrics");
       const data = await res.json();
       if (data.success) setMetrics(data.data);
-      
     };
+    fetchRecentTransactions();
     fetchChart();
     initializeUser();
     fetchMetrics();
@@ -212,59 +223,51 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Transactions */}
+        {/* Recent Transactions */}
         <div className="bg-white rounded-xl p-6 border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-6">
             Recent Transactions
           </h3>
-          <div className="space-y-4">
-            {[
-              {
-                id: "#ORD-10341",
-                product: "Wireless Mouse",
-                sales: 12,
-                amount: "$1,320.00",
-              },
-              {
-                id: "#ORD-10342",
-                product: "HP Pavilion",
-                sales: 15,
-                amount: "$270.00",
-              },
-              {
-                id: "#ORD-10343",
-                product: "Headphones",
-                sales: 40,
-                amount: "$2,100.00",
-              },
-            ].map((transaction) => (
-              <div
-                key={transaction.id}
-                className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                    <span className="text-sm font-semibold text-indigo-600">
-                      ID
-                    </span>
+
+          {recentOrders.length === 0 ? (
+            <p className="text-sm text-gray-500 text-center py-6">
+              No recent transactions found
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {recentOrders.map((order) => (
+                <div
+                  key={order._id}
+                  className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                      <span className="text-sm font-semibold text-indigo-600">
+                        ID
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        {order.productName}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        #{order._id.slice(-6)}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {transaction.product}
+
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-gray-900">
+                      ₹{order.totalAmount.toLocaleString()}
                     </p>
-                    <p className="text-xs text-gray-500">{transaction.id}</p>
+                    <p className="text-xs text-gray-500">
+                      {order.quantity} items
+                    </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-gray-900">
-                    {transaction.amount}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {transaction.sales} sales
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
       {showLogoutModal && (

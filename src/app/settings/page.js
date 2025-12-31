@@ -6,14 +6,20 @@ import Sidebar from "@/components/Sidebar";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [storeName, setStoreName] = useState("My E-Commerce Store");
+
+  // Admin
+  const [user, setUser] = useState(null);
+
+  // Store settings
+  const [storeName, setStoreName] = useState("");
   const [currency, setCurrency] = useState("INR");
   const [lowStock, setLowStock] = useState(5);
-  const [user, setUser] = useState(() => {
-    if (typeof window === "undefined") return null;
-    const data = localStorage.getItem("user");
-    return data ? JSON.parse(data) : null;
-  });
+
+  // UI states
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  /* ---------------- AUTH + LOAD DATA ---------------- */
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
@@ -22,8 +28,74 @@ export default function SettingsPage() {
       router.replace("/");
       return;
     }
-  }, [router, user]);
 
+    try {
+      setUser(JSON.parse(userData));
+    } catch {
+      router.replace("/");
+      return;
+    }
+
+    fetchSettings();
+  }, [router]);
+
+  /* ---------------- FETCH SETTINGS ---------------- */
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch("/api/settings");
+      const data = await res.json();
+
+      if (data.success && data.data) {
+        setStoreName(data.data.storeName);
+        setCurrency(data.data.currency);
+        setLowStock(data.data.lowStockThreshold);
+      }
+    } catch (err) {
+      console.error("Failed to load settings", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ---------------- SAVE SETTINGS ---------------- */
+  const saveSettings = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          storeName,
+          currency,
+          lowStockThreshold: Number(lowStock),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Settings saved successfully ✅");
+      } else {
+        alert("Failed to save settings ❌");
+      }
+    } catch (err) {
+      console.error("Save settings error", err);
+      alert("Something went wrong");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /* ---------------- LOADING ---------------- */
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600" />
+      </div>
+    );
+  }
+
+  /* ---------------- UI ---------------- */
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
@@ -31,53 +103,55 @@ export default function SettingsPage() {
       <main className="ml-64 p-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Settings</h1>
 
-        {/* Admin Profile */}
+        {/* ---------------- Admin Profile ---------------- */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-          <h2 className="text-lg text-gray-900 font-semibold mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
             Admin Profile
           </h2>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-sm text-gray-900">Name</label>
+              <label className="text-sm text-gray-600">Name</label>
               <input
                 value={user?.name || ""}
                 disabled
-                className="w-full text-gray-900 border rounded px-3 py-2 bg-gray-100"
+                className="w-full border rounded px-3 py-2 bg-gray-100 text-gray-900"
               />
             </div>
 
             <div>
-              <label className="text-sm text-gray-900">Email</label>
+              <label className="text-sm text-gray-600">Email</label>
               <input
                 value={user?.email || ""}
                 disabled
-                className="w-full border text-gray-900 rounded px-3 py-2 bg-gray-100"
+                className="w-full border rounded px-3 py-2 bg-gray-100 text-gray-900"
               />
             </div>
 
             <div>
-              <label className="text-sm text-gray-900">Role</label>
+              <label className="text-sm text-gray-600">Role</label>
               <input
                 value="Admin"
                 disabled
-                className="w-full border text-gray-900 rounded px-3 py-2 bg-gray-100"
+                className="w-full border rounded px-3 py-2 bg-gray-100 text-gray-900"
               />
             </div>
           </div>
         </div>
 
-        {/* Store Settings */}
+        {/* ---------------- Store Settings ---------------- */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-          <h2 className="text-lg font-semibold mb-4">Store Settings</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Store Settings
+          </h2>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="text-sm text-gray-600">Store Name</label>
               <input
                 value={storeName}
                 onChange={(e) => setStoreName(e.target.value)}
-                className="w-full text-gray-900 border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 text-gray-900"
               />
             </div>
 
@@ -86,7 +160,7 @@ export default function SettingsPage() {
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full text-gray-900 border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 text-gray-900"
               >
                 <option value="INR">₹ INR</option>
                 <option value="USD">$ USD</option>
@@ -94,25 +168,44 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <label className="text-sm text-gray-900">Low Stock Alert</label>
+              <label className="text-sm text-gray-600">
+                Low Stock Alert Threshold
+              </label>
               <input
                 type="number"
+                min={1}
                 value={lowStock}
                 onChange={(e) => setLowStock(e.target.value)}
-                className="w-full text-gray-900 border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 text-gray-900"
               />
             </div>
           </div>
+
+          <div className="flex justify-end mt-6">
+            <button
+              onClick={saveSettings}
+              disabled={saving}
+              className="px-6 py-2 bg-indigo-600 text-white rounded-lg disabled:opacity-50"
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
         </div>
 
-        {/* System Info */}
+        {/* ---------------- System Info ---------------- */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg text-gray-900 font-semibold mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
             System Info
           </h2>
-          <ul className="text-sm text-gray-900 space-y-2">
+          <ul className="text-sm text-gray-700 space-y-2">
             <li>
               <b>Logged in as:</b> Admin
+            </li>
+            <li>
+              <b>Currency:</b> {currency}
+            </li>
+            <li>
+              <b>Low stock threshold:</b> {lowStock}
             </li>
           </ul>
         </div>

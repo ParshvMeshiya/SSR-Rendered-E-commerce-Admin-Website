@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db/mongodb";
 import Product from "@/lib/db/models/product";
 import mongoose from "mongoose";
-
+import Order from "@/lib/db/models/order";
 export async function POST(req) {
   try {
     await connectDB();
@@ -31,18 +31,24 @@ export async function POST(req) {
       );
     }
     product.stock -= quantity;
-    product.sales = quantity;
-
+    product.sales += quantity;
     await product.save();
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        productId,
-        quantity,
-        revenue: quantity * product.price,
-      },
+    const order = await Order.create({
+      productId: product._id,
+      productName: product.name,
+      priceAtOrder: product.price,
+      quantity,
+      totalAmount: product.price * quantity,
     });
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: order,
+      },
+      { status: 201 }
+    );
   } catch (err) {
     console.error("ORDER ERROR:", err);
     return NextResponse.json(

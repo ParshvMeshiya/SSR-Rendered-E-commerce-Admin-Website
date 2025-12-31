@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 const productSchema = z.object({
@@ -55,6 +55,7 @@ export default function ProductForm({
   productId = null,
 }) {
   const router = useRouter();
+  const fileInputRef = useRef(null);
   useEffect(() => {
     if (mode === "edit" && initialData) {
       setFormData({
@@ -104,6 +105,8 @@ export default function ProductForm({
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -159,12 +162,29 @@ export default function ProductForm({
 
       // Validate with Zod
       const validatedData = productSchema.parse(dataToValidate);
+      let uploadedImage = null;
+
+      if (image) {
+        const formDataImg = new FormData();
+        formDataImg.append("file", image);
+
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formDataImg,
+        });
+
+        const uploadData = await uploadRes.json();
+
+        if (!uploadRes.ok || !uploadData.success) {
+          throw new Error("Image upload failed");
+        }
+
+        uploadedImage = uploadData.data; // { url, publicId }
+      }
 
       // Convert tags string to array
       const finalData = {
         ...validatedData,
-
-        // ✅ only add createdBy on CREATE, not EDIT
         ...(mode === "create" && { createdBy: user._id }),
 
         tags: validatedData.tags
@@ -183,6 +203,7 @@ export default function ProductForm({
                 .filter(Boolean)
             : [],
         },
+        ...(uploadedImage && { images: [uploadedImage] }),
       };
 
       const response = await fetch(
@@ -249,6 +270,35 @@ export default function ProductForm({
           <p className="mt-2 text-gray-600">
             Fill in the details below to create a new product
           </p>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current.click()}
+            className="px-4 py-2 text-gray-900 border rounded text-sm"
+          >
+            Add Image
+          </button>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+
+              setImage(file);
+              setImagePreview(URL.createObjectURL(file));
+            }}
+          />
+
+          {imagePreview && (
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="mt-4 h-24 rounded border"
+            />
+          )}
         </div>
 
         {/* Success Message */}
