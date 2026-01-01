@@ -107,7 +107,7 @@ export default function ProductForm({
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-
+  const [step, setStep] = useState(1);
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -132,7 +132,40 @@ export default function ProductForm({
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
+  const validateStepOne = () => {
+    try {
+      const dataToValidate = {
+        ...formData,
+        costPrice: formData.costPrice
+          ? parseFloat(formData.costPrice)
+          : undefined,
+        price: formData.price === "" ? undefined : Number(formData.price),
+        stock: formData.stock === "" ? undefined : Number(formData.stock),
+        compareAtPrice: formData.compareAtPrice
+          ? parseFloat(formData.compareAtPrice)
+          : undefined,
+        weight: formData.weight.value
+          ? {
+              value: parseFloat(formData.weight.value),
+              unit: formData.weight.unit,
+            }
+          : undefined,
+      };
 
+      productSchema.parse(dataToValidate);
+      setErrors({});
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors = {};
+        error.issues.forEach((err) => {
+          fieldErrors[err.path.join(".")] = err.message;
+        });
+        setErrors(fieldErrors);
+      }
+      return false;
+    }
+  };
   const handleSubmit = async (e) => {
     const user = JSON.parse(localStorage.getItem("user"));
     e.preventDefault();
@@ -254,8 +287,7 @@ export default function ProductForm({
       setIsSubmitting(false);
     }
   };
-
-  return (
+  const renderStepOne = () => (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
@@ -270,35 +302,6 @@ export default function ProductForm({
           <p className="mt-2 text-gray-600">
             Fill in the details below to create a new product
           </p>
-          <button
-            type="button"
-            onClick={() => fileInputRef.current.click()}
-            className="px-4 py-2 text-gray-900 border rounded text-sm"
-          >
-            Add Image
-          </button>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={(e) => {
-              const file = e.target.files[0];
-              if (!file) return;
-
-              setImage(file);
-              setImagePreview(URL.createObjectURL(file));
-            }}
-          />
-
-          {imagePreview && (
-            <img
-              src={imagePreview}
-              alt="Preview"
-              className="mt-4 h-24 rounded border"
-            />
-          )}
         </div>
 
         {/* Success Message */}
@@ -659,25 +662,85 @@ export default function ProductForm({
           )}
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-4 pt-6 border-t">
-            <button
-              type="button"
-              onClick={() => router.push("/products")}
-              className="px-6 py-2 border text-gray-900 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isSubmitting ? "Creating..." : "Create Product"}
-            </button>
-          </div>
         </div>
       </div>
+      <div className="flex justify-end pt-6 border-t">
+        <button
+          type="button"
+          onClick={() => {
+            if (validateStepOne()) setStep(2);
+          }}
+          className="px-6 py-2 bg-indigo-600 text-white rounded-lg"
+        >
+          Next →
+        </button>
+      </div>
     </div>
+  );
+  const renderStepTwo = () => (
+    <div className="mb-8 bg-white">
+      <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        Product Images
+      </h2>
+
+      <button
+        type="button"
+        onClick={() => fileInputRef.current.click()}
+        className="px-4 py-2 text-gray-900 border rounded text-sm"
+      >
+        Upload Image
+      </button>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={(e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          setImage(file);
+          setImagePreview(URL.createObjectURL(file));
+        }}
+      />
+
+      {imagePreview && (
+        <img
+          src={imagePreview}
+          alt="Preview"
+          className="mt-4 h-24 rounded border"
+        />
+      )}
+
+      <div className="flex justify-between pt-6 border-t">
+        <button
+          type="button"
+          onClick={() => setStep(1)}
+          className="px-6 py-2 border rounded-lg text-gray-900"
+        >
+          ← Back
+        </button>
+
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="px-6 py-2 bg-indigo-600 text-white rounded-lg"
+        >
+          {isSubmitting
+            ? "Saving..."
+            : mode === "edit"
+            ? "Update Product"
+            : "Create Product"}
+        </button>
+      </div>
+    </div>
+  );
+  return (
+    <form onSubmit = {handleSubmit}>
+      {step === 1 && renderStepOne()}
+      {step === 2 && renderStepTwo()}
+    </form>
   );
 }

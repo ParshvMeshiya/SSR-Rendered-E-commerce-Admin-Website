@@ -21,7 +21,7 @@ export default function RegisterPage() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      router.replace("/dashboard"); // Use replace instead of push
+      router.replace("/dashboard");
     }
   }, [router]);
   const handleChange = (e) => {

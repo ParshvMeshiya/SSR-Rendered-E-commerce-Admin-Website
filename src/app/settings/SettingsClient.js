@@ -18,28 +18,7 @@ export default function SettingsClient() {
   // UI states
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    const init = async () => {
-      const token = localStorage.getItem("token");
-      const userData = localStorage.getItem("user");
-
-      if (!token || !userData) {
-        router.replace("/");
-        return;
-      }
-
-      try {
-        setUser(JSON.parse(userData));
-        await fetchSettings();
-      } catch {
-        router.replace("/");
-      }
-    };
-
-    init();
-  }, [router]);
-
+  const [successMsg, setSuccessMsg] = useState("");
   const fetchSettings = async () => {
     try {
       const res = await fetch("/api/settings");
@@ -56,7 +35,14 @@ export default function SettingsClient() {
       setLoading(false);
     }
   };
-
+  useEffect(() => {
+    
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    fetchSettings();
+  }, []);
   const saveSettings = async () => {
     setSaving(true);
     try {
@@ -92,7 +78,6 @@ export default function SettingsClient() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />

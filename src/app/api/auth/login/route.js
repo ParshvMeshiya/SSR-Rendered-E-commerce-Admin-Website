@@ -70,7 +70,7 @@ export async function POST(request) {
       path: "/",
     });
     response.cookies.set("role", user.role, {
-      httpOnly: false, // middleware + client both can read
+      httpOnly: true, // middleware + client both can read
       sameSite: "lax",
       path: "/",
     });

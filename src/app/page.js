@@ -16,14 +16,6 @@ export default function LoginPage() {
   const [apiError, setApiError] = useState("");
   const [loading, setLoading] = useState(false);
   const [metrics, setMetrics] = useState(null);
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const user = localStorage.getItem("user");
-
-    if (token && user) {
-      router.replace("/dashboard");
-    }
-  }, [router]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
