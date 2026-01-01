@@ -3,12 +3,18 @@ import Product from "@/lib/db/models/product";
 import Sidebar from "@/components/Sidebar";
 import ProductsTable from "@/components/ProductsTable";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic"; // ensures SSR on each request
 
 export default async function ProductsPage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) {
+    redirect("/");
+  }
   await connectDB();
   const products = await Product.find().sort({ createdAt: -1 }).lean();
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
@@ -23,8 +29,6 @@ export default async function ProductsPage() {
             + Add Product
           </Link>
         </div>
-
-        {/* Client component */}
         <ProductsTable products={JSON.parse(JSON.stringify(products))} />
       </main>
     </div>

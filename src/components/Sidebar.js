@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 
-export default function Sidebar() {
+export default function Sidebar({ onLogoutClick }) {
   const router = useRouter();
   const pathname = usePathname();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -39,10 +39,7 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="space-y-2">
-        <a
-          href="/dashboard"
-          className={linkClass("/dashboard")}
-        >
+        <a href="/dashboard" className={linkClass("/dashboard")}>
           <svg
             className="w-5 h-5"
             fill="none"
@@ -59,10 +56,7 @@ export default function Sidebar() {
           Dashboard
         </a>
 
-        <a
-          href="/products"
-          className={linkClass("/products")}
-        >
+        <a href="/products" className={linkClass("/products")}>
           <svg
             className="w-5 h-5"
             fill="none"
@@ -79,10 +73,7 @@ export default function Sidebar() {
           Products
         </a>
 
-        <a
-          href="/orders"
-          className={linkClass("/orders")}
-        >
+        <a href="/orders" className={linkClass("/orders")}>
           <svg
             className="w-5 h-5"
             fill="none"
@@ -99,10 +90,7 @@ export default function Sidebar() {
           Orders
         </a>
 
-        <a
-          href="/settings"
-          className={linkClass("/settings")}
-        >
+        <a href="/settings" className={linkClass("/settings")}>
           <svg
             className="w-5 h-5"
             fill="none"
@@ -129,44 +117,12 @@ export default function Sidebar() {
       {/* Logout */}
       <div className="absolute bottom-6 left-6 right-6">
         <button
-          onClick={() => setShowLogoutModal(true)}
+          onClick={onLogoutClick}
           className="w-full flex items-center justify-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg"
         >
           Logout
         </button>
       </div>
-
-      {/* Logout Modal */}
-      {showLogoutModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-sm">
-            <h3 className="text-lg font-semibold mb-2">Confirm Logout</h3>
-            <p className="text-sm text-gray-600 mb-6">
-              Are you sure you want to logout?
-            </p>
-
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowLogoutModal(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={() => {
-                  document.cookie = "token=; Max-Age=0; path=/";
-                  localStorage.removeItem("user");
-                  router.replace("/");
-                }}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </aside>
   );
 }
