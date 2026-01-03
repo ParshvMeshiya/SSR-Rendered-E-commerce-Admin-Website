@@ -7,13 +7,35 @@ export default function Sidebar({ onLogoutClick }) {
   const router = useRouter();
   const pathname = usePathname();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const linkClass = (href) =>
     `flex items-center gap-3 px-4 py-3 rounded-lg ${
       pathname === href
         ? "text-indigo-600 bg-indigo-50 font-medium"
         : "text-gray-600 hover:bg-gray-50"
     }`;
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        localStorage.removeItem("user");
+        window.location.href = "/";
+      } else {
+        console.error("Logout failed");
+        alert("Logout failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 p-6">
@@ -115,15 +137,46 @@ export default function Sidebar({ onLogoutClick }) {
       </nav>
 
       {/* Logout */}
-      
+
       <div className="absolute bottom-6 left-6 right-6">
         <button
-          onClick={onLogoutClick}
+          onClick={() => setShowLogoutModal(true)}
           className="w-full flex items-center justify-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg"
         >
           Logout
         </button>
       </div>
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999]">
+          <div className="bg-white rounded-xl p-6 w-full max-w-sm z-[10000]">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Confirm Logout
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to logout?
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                disabled={isLoggingOut}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-50 transition-colors"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+              >
+                {isLoggingOut ? "Logging out..." : "Logout"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
