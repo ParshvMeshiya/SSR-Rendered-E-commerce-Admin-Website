@@ -49,8 +49,14 @@ export default function LoginPage() {
     const fetchMetrics = async () => {
       try {
         const res = await fetch("/api/dashboard/metrics");
-        const data = await res.json();
-
+        const text = await res.text();
+        try {
+          const data = JSON.parse(text);
+          // use data
+        } catch {
+          console.error("Non-JSON response:", text);
+          throw new Error("Server returned invalid response");
+        }
         if (data.success) {
           setMetrics(data.data);
         }
@@ -148,8 +154,7 @@ export default function LoginPage() {
                 placeholder="Enter your password"
               />
             </div>
-            <div className="flex items-center justify-between">
-            </div>
+            <div className="flex items-center justify-between"></div>
             <button
               type="submit"
               disabled={loading}

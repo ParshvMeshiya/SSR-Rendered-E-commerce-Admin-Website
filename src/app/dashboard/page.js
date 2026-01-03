@@ -1,6 +1,12 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardClient from "./DashboardClient";
+function getBaseUrl() {
+  if (process.env.NEXT_PUBLIC_VERCEL_URL) {
+    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
+  }
+  return "http://localhost:3000";
+}
 export default async function DashboardPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -9,7 +15,7 @@ export default async function DashboardPage() {
   if (!token) {
     redirect("/");
   }
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const baseUrl = getBaseUrl();
 
   const [metricsRes, categoryRes, recentRes] = await Promise.all([
     fetch(`${baseUrl}/api/dashboard/metrics`, { cache: "no-store" }),

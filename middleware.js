@@ -3,6 +3,9 @@ export function middleware(request) {
   const token = request.cookies.get("token")?.value;
   const role = request.cookies.get("role")?.value;
   const { pathname } = request.nextUrl;
+  if (pathname.startsWith("/api")) {
+    return NextResponse.next();
+  }
   const isAuthPage = pathname === "/" || pathname === "/register";
   const isAdminRoute =
     pathname.startsWith("/dashboard") ||
