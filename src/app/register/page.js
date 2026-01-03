@@ -20,8 +20,12 @@ export default function RegisterPage() {
   const [showSecretKey, setShowSecretKey] = useState(false);
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      router.replace("/dashboard");
+    const user = localStorage.getItem("user");
+    if (token & user) {
+      const parsedUser = JSON.parse(user);
+      if(parsedUser.role !== "admin"){
+        router.replace("/dashboard");
+      }
     }
   }, [router]);
   const handleChange = (e) => {
@@ -48,7 +52,7 @@ export default function RegisterPage() {
 
     if (!validation.success) {
       const formattedErrors = {};
-      validation.error.errors.forEach((err) => {
+      validation.error.issues.forEach((err) => {
         formattedErrors[err.path[0]] = err.message;
       });
       setErrors(formattedErrors);
@@ -138,7 +142,7 @@ export default function RegisterPage() {
                 type="text"
                 value={formData.name}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${
+                className={`w-full px-4 py-3 text-gray-900 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${
                   errors.name ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="John Doe"
@@ -161,7 +165,7 @@ export default function RegisterPage() {
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${
+                className={`w-full px-4 py-3 text-gray-900 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${
                   errors.email ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="admin@example.com"
@@ -184,7 +188,7 @@ export default function RegisterPage() {
                 type="password"
                 value={formData.password}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${
+                className={`w-full px-4 py-3 border text-gray-900 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${
                   errors.password ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="••••••••"
@@ -210,7 +214,7 @@ export default function RegisterPage() {
                 type="password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${
+                className={`w-full px-4 py-3 border text-gray-900 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${
                   errors.confirmPassword ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="••••••••"

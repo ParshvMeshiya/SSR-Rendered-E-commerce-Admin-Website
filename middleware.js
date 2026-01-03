@@ -15,7 +15,7 @@ export function middleware(request) {
   if (token && role !== "admin" && isAdminRoute) {
     return NextResponse.redirect(new URL("/", request.url));
   }
-  if (token && isAuthPage) {
+  if (token && pathname === "/") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
   return NextResponse.next();

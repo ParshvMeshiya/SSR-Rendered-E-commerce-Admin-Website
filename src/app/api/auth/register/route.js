@@ -39,15 +39,11 @@ export async function POST(request) {
     }
     let userRole = "user";
     if (role === "admin") {
-      const auth = await authenticate(request);
-      const hasAdminAuth = auth.isAuthenticated && requireAdmin(auth.user);
-      const hasSecretKey = secretKey === process.env.ADMIN_SECRET_KEY;
-      if (!hasAdminAuth && !hasSecretKey) {
+      if (secretKey !== process.env.ADMIN_SECRET_KEY) {
         return NextResponse.json(
           {
             success: false,
-            error:
-              "Unauthorized to create admin account. Valid admin credentials or secret key required.",
+            error: "Invalid admin secret key",
           },
           { status: 403 }
         );
