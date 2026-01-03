@@ -8,6 +8,7 @@ export default async function DashboardPage() {
     redirect("/");
   }
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+
   const [metricsRes, categoryRes, recentRes] = await Promise.all([
     fetch(`${baseUrl}/api/dashboard/metrics`, { cache: "no-store" }),
     fetch(`${baseUrl}/api/dashboard/category-sales`, { cache: "no-store" }),
@@ -15,6 +16,10 @@ export default async function DashboardPage() {
       cache: "no-store",
     }),
   ]);
+  if(!metricsRes.ok){
+    const text = await metricsRes.text();
+    console.error("Metrics fetch error:", text);
+  }
   const metrics = (await metricsRes.json()).data;
   const categorySales = (await categoryRes.json()).data;
   const recentOrders = (await recentRes.json()).data;
