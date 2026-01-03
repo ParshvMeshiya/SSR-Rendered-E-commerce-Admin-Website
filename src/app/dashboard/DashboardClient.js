@@ -1,5 +1,4 @@
 "use client";
-
 import {
   BarChart,
   Bar,
@@ -14,7 +13,6 @@ import {
 } from "recharts";
 import Sidebar from "@/components/Sidebar";
 import { useState } from "react";
-
 export default function DashboardClient({
   metrics,
   categorySales,
@@ -24,13 +22,11 @@ export default function DashboardClient({
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar onLogoutClick={() => setShowLogoutModal(true)} />
-
       <main className="ml-64 p-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Dashboard </h1>
         </div>
-
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-indigo-400 text-white rounded-xl p-6">
@@ -39,21 +35,18 @@ export default function DashboardClient({
               ₹{metrics?.revenue?.toLocaleString() ?? "—"}
             </p>
           </div>
-
           <div className="bg-indigo-400 rounded-xl p-6 border">
             <p className="text-sm text-gray-950">Items Sold</p>
             <p className="text-3xl text-gray-900 font-bold">
               {metrics?.itemsSold ?? "—"}
             </p>
           </div>
-
           <div className="bg-indigo-400 rounded-xl p-6 border">
             <p className="text-sm text-gray-950">Customers</p>
             <p className="text-3xl text-gray-900 font-bold">
               {metrics?.customers?.toLocaleString() ?? "—"}
             </p>
           </div>
-
           <div className="bg-indigo-400 rounded-xl p-6 border">
             <p className="text-sm text-gray-950">Profit</p>
             <p className="text-3xl text-gray-900 font-bold">
@@ -61,11 +54,9 @@ export default function DashboardClient({
             </p>
           </div>
         </div>
-
         {/* Charts */}
         <div className="bg-white rounded-xl p-6 border mb-8">
           <h3 className="text-lg text-gray-900 font-semibold mb-4">Sales by Category</h3>
-
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={categorySales}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -75,7 +66,6 @@ export default function DashboardClient({
               <Bar dataKey="sales" fill="#6366f1" />
             </BarChart>
           </ResponsiveContainer>
-
           <div className="mt-10 flex justify-center">
             <ResponsiveContainer width="60%" height={300}>
               <PieChart>
@@ -104,13 +94,11 @@ export default function DashboardClient({
             </ResponsiveContainer>
           </div>
         </div>
-
         {/* Recent Transactions */}
         <div className="bg-white rounded-xl p-6 border">
           <h3 className="text-lg text-gray-900 font-semibold mb-4">
             Recent Transactions
           </h3>
-
           {recentOrders.length === 0 ? (
             <p className="text-gray-900">No recent transactions</p>
           ) : (

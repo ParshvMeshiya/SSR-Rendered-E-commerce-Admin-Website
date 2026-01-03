@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { verifyToken } from './jwt';
 export async function authenticate(request) {
   try {
-    // Get token from Authorization header
     const authHeader = request.headers.get('authorization');
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

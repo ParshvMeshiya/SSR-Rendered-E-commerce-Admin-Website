@@ -115,6 +115,7 @@ export default function Sidebar({ onLogoutClick }) {
       </nav>
 
       {/* Logout */}
+      
       <div className="absolute bottom-6 left-6 right-6">
         <button
           onClick={onLogoutClick}
