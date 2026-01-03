@@ -28,11 +28,8 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-
     const { name, email, password } = validation.data;
     const { role, secretKey } = body;
-
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
@@ -40,18 +37,11 @@ export async function POST(request) {
         { status: 409 }
       );
     }
-
-    // If registering as admin, verify authentication and secret key
     let userRole = "user";
-
     if (role === "admin") {
-      // Check authentication
       const auth = await authenticate(request);
-
-      // Either must be authenticated as admin OR provide secret key
       const hasAdminAuth = auth.isAuthenticated && requireAdmin(auth.user);
       const hasSecretKey = secretKey === process.env.ADMIN_SECRET_KEY;
-
       if (!hasAdminAuth && !hasSecretKey) {
         return NextResponse.json(
           {
@@ -62,19 +52,14 @@ export async function POST(request) {
           { status: 403 }
         );
       }
-
       userRole = "admin";
     }
-
-    // Create new user
     const user = await User.create({
       name,
       email,
       password,
       role: userRole,
     });
-
-    // Generate JWT token
     const token = generateToken(user._id.toString(), user.email, user.role);
     const response = NextResponse.json(
       {
@@ -97,7 +82,6 @@ export async function POST(request) {
       sameSite: "lax",
       path: "/",
     });
-
     return response;
   } catch (error) {
     console.error("Registration error:", error);

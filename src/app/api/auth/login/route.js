@@ -30,30 +30,21 @@ export async function POST(request) {
         { status: 401 }
       );
     }
-
-    // Check if user is active
     if (!user.isActive) {
       return NextResponse.json(
         { success: false, error: "Account is deactivated" },
         { status: 403 }
       );
     }
-
-    // Verify password
     const isPasswordValid = await user.comparePassword(password);
-
     if (!isPasswordValid) {
       return NextResponse.json(
         { success: false, error: "Invalid email or password" },
         { status: 401 }
       );
     }
-
-    // Update last login
     user.lastLogin = new Date();
     await user.save();
-
-    // Generate JWT token
     const token = generateToken(user._id.toString(), user.email, user.role);
     const response = NextResponse.json({
       success: true,
@@ -63,14 +54,13 @@ export async function POST(request) {
         token,
       },
     });
-
     response.cookies.set("token", token, {
       httpOnly: true,
       sameSite: "lax",
       path: "/",
     });
     response.cookies.set("role", user.role, {
-      httpOnly: true, // middleware + client both can read
+      httpOnly: true,
       sameSite: "lax",
       path: "/",
     });

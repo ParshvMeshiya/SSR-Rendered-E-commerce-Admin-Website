@@ -101,7 +101,6 @@ export default function ProductForm({
     weight: { value: "", unit: "kg" },
     seo: { title: "", description: "", keywords: "" },
   });
-
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -126,8 +125,6 @@ export default function ProductForm({
         [name]: type === "checkbox" ? checked : value,
       }));
     }
-
-    // Clear error for this field
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -151,7 +148,6 @@ export default function ProductForm({
             }
           : undefined,
       };
-
       productSchema.parse(dataToValidate);
       setErrors({});
       return true;
@@ -172,9 +168,7 @@ export default function ProductForm({
     setErrors({});
     setIsSubmitting(true);
     setSubmitSuccess(false);
-
     try {
-      // Prepare data for validation
       const dataToValidate = {
         ...formData,
         costPrice: formData.costPrice
@@ -192,11 +186,8 @@ export default function ProductForm({
             }
           : undefined,
       };
-
-      // Validate with Zod
       const validatedData = productSchema.parse(dataToValidate);
       let uploadedImage = null;
-
       if (image) {
         const formDataImg = new FormData();
         formDataImg.append("file", image);
@@ -205,28 +196,21 @@ export default function ProductForm({
           method: "POST",
           body: formDataImg,
         });
-
         const uploadData = await uploadRes.json();
-
         if (!uploadRes.ok || !uploadData.success) {
           throw new Error("Image upload failed");
         }
-
         uploadedImage = uploadData.data; // { url, publicId }
       }
-
-      // Convert tags string to array
       const finalData = {
         ...validatedData,
         ...(mode === "create" && { createdBy: user._id }),
-
         tags: validatedData.tags
           ? validatedData.tags
               .split(",")
               .map((t) => t.trim())
               .filter(Boolean)
           : [],
-
         seo: {
           ...validatedData.seo,
           keywords: validatedData.seo?.keywords
@@ -236,9 +220,16 @@ export default function ProductForm({
                 .filter(Boolean)
             : [],
         },
-        ...(uploadedImage && { images: [uploadedImage] }),
+        ...(uploadedImage && {
+          images: [
+            {
+              url: uploadedImage.url,
+              publicId: uploadedImage.publicId,
+              alt: formData.name || "Product image",
+            },
+          ],
+        }),
       };
-
       const response = await fetch(
         mode === "edit" ? `/api/products/${productId}` : "/api/products",
         {
@@ -247,9 +238,7 @@ export default function ProductForm({
           body: JSON.stringify(finalData),
         }
       );
-
       const result = await response.json();
-
       if (!response.ok) {
         throw new Error(
           result.error ||
@@ -258,24 +247,18 @@ export default function ProductForm({
               : "Failed to create product")
         );
       }
-
       setSubmitSuccess(true);
-
-      // Redirect after 1.5 seconds
       setTimeout(() => {
         router.push("/products");
       }, 1000);
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors = {};
-
         error.issues.forEach((err) => {
           fieldErrors[err.path.join(".")] = err.message;
         });
-
         setErrors(fieldErrors);
       }
-      // API / runtime error
       else {
         console.error(error);
         setErrors({
@@ -738,7 +721,7 @@ export default function ProductForm({
     </div>
   );
   return (
-    <form onSubmit = {handleSubmit}>
+    <form onSubmit={handleSubmit}>
       {step === 1 && renderStepOne()}
       {step === 2 && renderStepTwo()}
     </form>

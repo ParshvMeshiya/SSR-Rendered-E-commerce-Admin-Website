@@ -1,37 +1,29 @@
 export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db/mongodb";
-import Product from "@/lib/db/models/product";
+import Order from "@/lib/db/models/order";
 
 export async function GET() {
   try {
     await connectDB();
-
-    const products = await Product.find(); // ✅ ALL products
-
+    const orders = await Order.find();
     let revenue = 0;
-    let itemsSold = 0;
     let totalCost = 0;
-
-    for (const p of products) {
-      const sales = p.sales || 0;
-      const price = p.price || 0;
-      const cost = p.costPrice || 0;
-
-      revenue += price * sales;
-      totalCost += cost * sales;
-      itemsSold += sales;
+    let itemsSold = 0;
+    for (const o of orders) {
+      revenue += o.priceAtOrder * o.quantity;
+      totalCost += o.costPriceAtOrder * o.quantity;
+      itemsSold += o.quantity;
     }
-
     const profit = revenue - totalCost;
-
     return NextResponse.json({
       success: true,
       data: {
-        revenue,
-        itemsSold,
-        customers: 0, // placeholder (explained later)
+        revenue: revenue,
+        itemsSold: itemsSold,
         profit,
+        customers: 0,
       },
     });
   } catch (error) {

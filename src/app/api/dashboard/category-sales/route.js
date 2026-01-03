@@ -1,45 +1,43 @@
-// src/app/api/dashboard/category-sales/route.js
-export const runtime = "nodejs";
-
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db/mongodb";
-import Product from "@/lib/db/models/product";
+import Order from "@/lib/db/models/order";
 
 export async function GET() {
   try {
     await connectDB();
-    const categorySales = await Product.aggregate([
+
+    const categorySales = await Order.aggregate([
       {
-        $match: {
-          status: "active",
+        $lookup: {
+          from: "products",
+          localField: "productId",
+          foreignField: "_id",
+          as: "product",
         },
       },
+      { $unwind: "$product" },
       {
         $group: {
-          _id: "$category",
-          totalSales: { $sum: "$sales" },
+          _id: "$product.category",
+          sales: { $sum: "$quantity" },
         },
       },
       {
         $project: {
           _id: 0,
           category: "$_id",
-          sales: "$totalSales",
+          sales: 1,
         },
       },
-      {
-        $sort: {
-          sales: -1,
-        },
-      },
+      { $sort: { sales: -1 } },
     ]);
 
     return NextResponse.json({
       success: true,
       data: categorySales,
     });
-  } catch (error) {
-    console.error("Category sales error:", error);
+  } catch (err) {
+    console.error(err);
     return NextResponse.json(
       { success: false, error: "Failed to fetch category sales" },
       { status: 500 }

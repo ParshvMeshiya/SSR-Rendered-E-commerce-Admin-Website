@@ -19,11 +19,24 @@ export const productSchema = z.object({
   ]),
   subCategory: z.string().optional(),
   brand: z.string().optional(),
-  sku: z.string().min(1).transform((v) => v.toUpperCase()),
+  sku: z
+    .string()
+    .min(1)
+    .transform((v) => v.toUpperCase()),
   stock: z.number().min(0),
   tags: z.array(z.string()).optional(),
   status: z.enum(["draft", "active", "archived"]),
   featured: z.boolean(),
+  images: z
+    .array(
+      z.object({
+        url: z.string().url(),
+        publicId: z.string().optional(),
+        alt: z.string().optional(),
+      })
+    )
+    .optional(),
+
   weight: z
     .object({
       value: z.number().optional(),

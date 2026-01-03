@@ -64,7 +64,7 @@ export default function DashboardClient({
 
         {/* Charts */}
         <div className="bg-white rounded-xl p-6 border mb-8">
-          <h3 className="text-lg font-semibold mb-4">Sales by Category</h3>
+          <h3 className="text-lg text-gray-900 font-semibold mb-4">Sales by Category</h3>
 
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={categorySales}>
