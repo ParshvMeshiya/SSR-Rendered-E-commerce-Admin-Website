@@ -6,7 +6,7 @@
 
 - GitHub: [@ParshvMeshiya](https://github.com/ParshvMeshiya)
 - Project Link: [https://github.com/ParshvMeshiya/SSR-Rendered-E-commerce-Admin-Website](https://github.com/ParshvMeshiya/SSR-Rendered-E-commerce-Admin-Website)
-- Deployed Website Link: [https://e-commerce-kchefdo4d-parshvmeshiyas-projects.vercel.app/](https://e-commerce-kchefdo4d-parshvmeshiyas-projects.vercel.app/)
+- Deployed Website Link: [https://e-commerce-nu-roan-89.vercel.app/](https://e-commerce-nu-roan-89.vercel.app/)
 - Dummy Account Credentials:
     1) Email Address : admin@example.com
     2)Password : Admin@123
