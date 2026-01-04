@@ -1,5 +1,16 @@
 # Server-Rendered E-commerce Product Management Dashboard
 
+## Owner details
+
+**Parshv Meshiya**
+
+- GitHub: [@ParshvMeshiya](https://github.com/ParshvMeshiya)
+- Project Link: [https://github.com/ParshvMeshiya/SSR-Rendered-E-commerce-Admin-Website](https://github.com/ParshvMeshiya/SSR-Rendered-E-commerce-Admin-Website)
+- Deployed Website Link: [https://e-commerce-bash.vercel.app](https://e-commerce-bash.vercel.app/)
+- Dummy Account Credentials:
+    1) Email Address : admin@example.com
+    2)Password : Admin@123
+---
 ## Project Overview
 
 The **Server-Rendered E-commerce Product Management Dashboard** is a full-stack web application designed to help administrators manage products in an e-commerce system efficiently. The main goal of this project is to demonstrate how **server-side rendering (SSR)** can be used to build fast, SEO-friendly, and scalable admin dashboards using **Next.js**.
@@ -566,11 +577,3 @@ Contributions are welcome! Please follow these steps:
 
 ---
 
-## Contact
-
-**Parshv Meshiya**
-
-- GitHub: [@ParshvMeshiya](https://github.com/ParshvMeshiya)
-- Project Link: [https://github.com/ParshvMeshiya/SSR-Rendered-E-commerce-Admin-Website](https://github.com/ParshvMeshiya/SSR-Rendered-E-commerce-Admin-Website)
-
----
