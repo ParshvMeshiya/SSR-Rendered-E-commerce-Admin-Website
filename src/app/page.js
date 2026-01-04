@@ -1,11 +1,8 @@
-// src/app/page.js
 "use client";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loginSchema } from "@/lib/validations/authSchema";
-
 export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -52,7 +49,6 @@ export default function LoginPage() {
         const text = await res.text();
         try {
           const data = JSON.parse(text);
-          // use data
         } catch {
           console.error("Non-JSON response:", text);
           throw new Error("Server returned invalid response");
